@@ -1,0 +1,15 @@
+﻿name: "Labeling task"
+description: Human labeling against spec
+labels: ["labeling"]
+body:
+  - type: input
+    id: batch
+    attributes: { label: "Signal batch id", placeholder: "ctsa_signals batch ts/run_id" }
+  - type: textarea
+    id: scope
+    attributes: { label: "Scope", value: "CT/SA only; RT/DEV only if not CT/SA-detectable" }
+  - type: textarea
+    id: instructions
+    attributes:
+      label: "Instructions"
+      value: "Annotate Spec_Section, Spec_Constraint, Detection_Channel, Detected_Label. Record disagreements."

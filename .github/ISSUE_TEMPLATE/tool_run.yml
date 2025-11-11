@@ -1,0 +1,16 @@
+﻿name: "Tool run"
+description: Run compiler/static/RT tools and record outputs
+labels: ["tool:run"]
+body:
+  - type: dropdown
+    id: tool
+    attributes: { label: "Tool", options: ["compiler","clang-tidy","cppcheck","CodeQL","OpenCL Layers","oclgrind"] }
+  - type: input
+    id: repo
+    attributes: { label: "Repo@commit", placeholder: "owner/repo@<sha>" }
+  - type: textarea
+    id: cmd
+    attributes: { label: "Invocation", value: "scripts/run_<tool>.sh …" }
+  - type: textarea
+    id: outputs
+    attributes: { label: "Artifacts", value: "tool_runs.csv; stdout/stderr paths; ctsa_signals.csv append (if any)" }

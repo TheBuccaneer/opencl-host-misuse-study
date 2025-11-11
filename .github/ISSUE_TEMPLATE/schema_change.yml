@@ -1,0 +1,10 @@
+﻿name: "Schema change"
+description: Propose change to CSV schemas
+labels: ["schema","docs"]
+body:
+  - type: textarea
+    id: rationale
+    attributes: { label: "Rationale", placeholder: "Why needed? Impact on pipelines?" }
+  - type: textarea
+    id: diff
+    attributes: { label: "Proposed header(s)", value: "ctsa_signals.csv: repo,file,line,..." }

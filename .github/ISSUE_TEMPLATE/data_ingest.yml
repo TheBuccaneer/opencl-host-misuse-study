@@ -1,0 +1,14 @@
+﻿name: "Data ingest"
+description: Track adding projects or tool outputs to data/raw
+labels: ["data:ingest"]
+body:
+  - type: input
+    id: source
+    attributes: { label: "Source (repo URL/query/batch id)", placeholder: "owner/repo or search query" }
+  - type: textarea
+    id: steps
+    attributes: { label: "Steps", value: "- fetch`n- record in projects_sample.csv`n- store raw artefacts" }
+  - type: textarea
+    id: checklist
+    attributes: { label: "Checklist" }
+    validations: { required: true }
