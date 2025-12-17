@@ -1,0 +1,209 @@
+Hier ein kurzer README-Entwurf, der genau den aktuellen Stand dokumentiert. Den kannst du z. B. als README_sampling.md ins Repo legen.
+
+OpenCL Host-API Study – Repository-Sampling & Pilot
+
+Dieses Dokument beschreibt den aktuellen Stand der Projekt- und Repositorien-Auswahl für die OpenCL-Host-API-Misuse-Studie.
+
+1. Ziel dieser Phase
+
+Ziel dieser Phase ist es,
+
+aus GitHub-Projekten mit OpenCL-Host-API-Nutzung
+
+ein definiertes Korpus von Repositories zu gewinnen,
+
+daraus eine stratifizierte Pilotstichprobe (50 Repos) zu ziehen,
+
+und diese Pilot-Stichprobe so zu annotieren, dass sie später für
+
+Build-Status,
+
+Tool-Runs (Oclgrind/Layers/…),
+
+und Ein-/Ausschlussgründe
+sauber ausgewertet werden kann.
+
+2. Sampling-Script: sample_repos.py
+
+Mit sample_repos.py wurde zunächst ein größerer Pool von Kandidaten-Repositories gesammelt:
+
+Datenquelle: GitHub REST API (authentifiziert via GH_TOKEN)
+
+Filter (vereinfacht):
+
+Programmiersprache: C/C++
+
+OpenCL-Host-API-Nutzung (Code-Search nach Kernfunktionen)
+
+Projektgröße unter einem definierten LOC-/Größen-Limit
+
+letzte Aktivität innerhalb der letzten Monate
+
+keine Forks (is_fork == False)
+
+Zusätzlich werden Metadaten erfasst:
+
+stars, forks
+
+domain (Heuristik: computer_vision, hpc, ml, other)
+
+activity_level (High, Medium, Low)
+
+loc (geschätzte Lines of Code über GitHub-Languages-API)
+
+Output dieser Phase:
+projects_sample.csv
+mit u. a. folgenden Spalten:
+
+repo
+
+default_branch
+
+stars
+
+forks
+
+domain
+
+language
+
+last_update
+
+is_fork
+
+selected (initial 0)
+
+activity_level
+
+loc
+
+3. Pilot-Sampling: pilot_sample.py
+
+Aus projects_sample.csv wurde mit pilot_sample.py eine stratifizierte Pilotstichprobe gezogen.
+
+Kerneigenschaften des Scripts:
+
+arbeitet auf projects_sample.csv
+
+filtert Forks heraus (is_fork == False)
+
+normalisiert domain und activity_level
+
+zieht eine Stichprobe von 50 Repositories mit folgenden Domänenquoten:
+
+computer_vision: 15
+
+hpc: 15
+
+ml: 15
+
+other: 5
+
+innerhalb jeder Domäne wird activity_level möglichst balanciert:
+
+bei 15 Repos ideal: 5 High / 5 Medium / 5 Low
+
+bei 5 Repos ideal: 2 High / 2 Medium / 1 Low
+
+das Sampling ist reproduzierbar (random_state=42)
+
+Output:
+projects_pilot_50.csv
+
+enthält die ursprünglichen Spalten aus projects_sample.csv
+
+in der Spalte selected sind die Pilot-Repositories mit 1 markiert
+
+Anschließend wurden alle Zeilen mit selected == 0 entfernt, sodass
+projects_pilot_50.csv jetzt genau 50 Zeilen (Pilot-Repos) enthält.
+
+4. Erweiterung für Build- und Tool-Dokumentation
+
+Damit die 50 Pilot-Repositories für die eigentliche Studie nutzbar sind, wurde das Schema um vier Status-Spalten erweitert. Ziel ist eine saubere, zeilenweise Dokumentation von Build- und Tool-Ergebnissen sowie etwaigen Ausschlussgründen.
+
+Am Ende der Datei projects_pilot_50.csv wurden folgende Spalten ergänzt:
+
+build_status
+Status des Build-Versuchs für das jeweilige Repo.
+
+Mögliche Werte:
+
+not_attempted – noch kein Build-Versuch
+
+success – Build der relevanten Targets erfolgreich
+
+failed – Build versucht, aber gescheitert
+
+skipped – bewusst nicht versucht (z. B. zu groß, zu komplex für Pilot)
+
+tool_status
+Status der Tool-Runs (z. B. Oclgrind, Validation-Layer, statische Checks).
+
+Mögliche Werte:
+
+not_attempted – noch keine Tool-Runs
+
+success – Tools erfolgreich auf mindestens einem sinnvollen Szenario ausgeführt
+
+failed – Tools probiert, aber mit Fehlern/Crashes
+
+skipped – bewusst nicht ausgeführt (z. B. Zeit-/Ressourcenlimit)
+
+exclusion_reason
+Kurzer Code, warum ein Repo ggf. nicht in die finale Analyse eingeht.
+
+Initial: leer ("").
+Später z. B.:
+
+build_failed
+
+no_opencl_host_calls
+
+out_of_scope
+
+too_large
+
+tool_crash
+
+license_issue
+
+Kombinationen möglich, z. B. build_failed;tool_crash
+
+notes
+Freitextfeld für ergänzende Kommentare, z. B.:
+
+„nur ICD/Headers, kein Host-API-Client-Code“
+
+„CMakeLists vorhanden, aber proprietäre Abhängigkeit X fehlt“
+
+„Tool-Lauf bricht bei Test Y reproduzierbar ab“
+
+5. Aktueller Stand
+
+projects_sample.csv
+→ großer, heuristisch gefilterter Pool geeigneter OpenCL-Repositories.
+
+projects_pilot_50.csv
+→ 50 stratifiziert ausgewählte Pilot-Repositories (Domäne × Aktivität),
+alle Zeilen mit selected == 0 wurden entfernt.
+
+projects_pilot_50.csv (erweitert)
+→ zusätzlich um die Status-Spalten:
+
+build_status
+
+tool_status
+
+exclusion_reason
+
+notes
+
+Diese Tabelle ist jetzt die Arbeitsgrundlage für die nächsten Schritte:
+
+Repositories clonen und Build versuchen (build_status, notes setzen).
+
+Tools auf die erfolgreich gebauten Repos anwenden (tool_status, notes).
+
+Repos, die aus der finalen Analyse herausfallen, mit exclusion_reason markieren.
+
+Wenn du magst, kann ich dir im nächsten Schritt ein ganz kleines „Arbeitsprotokoll“ für ein einzelnes Repo formulieren (Checkliste, was du in welcher Reihenfolge machst und was du in welche Spalte einträgst)
