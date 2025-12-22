@@ -1,0 +1,109 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: ${{ matrix.os }}-${{ matrix.buildtype }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 1
+      matrix:
+        buildtype: [Debug]
+        os: [ubuntu-24.04]
+        cxx: [clang++]
+        cc: [clang]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install packages
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang \
+            lcov \
+            gcovr \
+            pocl-opencl-icd \
+            ocl-icd-opencl-dev \
+            opencl-headers \
+            clinfo \
+            libpocl-dev \
+            libhwloc-dev
+
+          # Ensure pocl ICD is properly registered
+          sudo mkdir -p /etc/OpenCL/vendors
+          if [ ! -f /etc/OpenCL/vendors/pocl.icd ]; then
+            echo "Registering pocl ICD..."
+            echo "/usr/lib/x86_64-linux-gnu/libpocl.so" | sudo tee /etc/OpenCL/vendors/pocl.icd > /dev/null
+          fi
+
+          # Verify pocl device file exists
+          ls -la /etc/OpenCL/vendors/ || true
+
+      - name: Set OpenCL CPU runtime environment
+        run: |
+          # Force pocl to enable CPU device
+          export POCL_DEVICES=cpu
+          export POCL_TARGETS=host
+          export POCL_BUILDING=0
+          export POCL_DEBUG=all
+          export OCL_ICD_VENDORS=/etc/OpenCL/vendors
+          export OPENCL_VENDOR_PATH=/etc/OpenCL/vendors
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+
+          # Set environment variables for workflow
+          echo "POCL_DEVICES=$POCL_DEVICES" >> $GITHUB_ENV
+          echo "POCL_TARGETS=$POCL_TARGETS" >> $GITHUB_ENV
+          echo "POCL_BUILDING=$POCL_BUILDING" >> $GITHUB_ENV
+          echo "POCL_DEBUG=$POCL_DEBUG" >> $GITHUB_ENV
+          echo "OCL_ICD_VENDORS=$OCL_ICD_VENDORS" >> $GITHUB_ENV
+          echo "OPENCL_VENDOR_PATH=$OPENCL_VENDOR_PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
+          # Verify pocl installation and device detection
+          echo "Checking pocl installation..."
+          dpkg -l | grep pocl || echo "pocl not found via dpkg"
+          ls -la /usr/lib/x86_64-linux-gnu/libpocl* 2>/dev/null || echo "pocl libraries not found"
+
+          echo "Testing OpenCL device detection..."
+          clinfo -l || echo "clinfo -l failed"
+          clinfo || echo "clinfo failed - will attempt build anyway"
+
+      - name: Cmake configure
+        shell: bash
+        run: |
+          cmake -S ${{ github.workspace }} -B ${{ runner.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.buildtype }} -DBUILD_COVERAGE=ON -DBUILD_BENCHMARK=OFF -DOpenCL_LIBRARY=/usr/lib/x86_64-linux-gnu/libOpenCL.so -DOpenCL_INCLUDE_DIR=/usr/include
+
+      - name: Cmake build
+        shell: bash
+        run: |
+          cmake --build "${{ runner.workspace }}/build" --parallel 10 --config ${{ matrix.buildtype }}
+
+      - name: Generate coverage
+        shell: bash
+        run: |
+          cd ${{ runner.workspace }}/build && ctest -C ${{ matrix.buildtype }} --output-on-failure
+
+      - name: Format coverage
+        shell: bash
+        run: |
+          cd ${{ runner.workspace }}/build
+          gcovr -r . --filter='.*/clic/src/.*' --exclude-throw-branches --exclude-unreachable-branches --xml -o coverage.xml
+          # lcov --base-directory . --directory . --capture --output-file coverage.info
+          # lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' ''*/deps_/*' --output-file coverage.info
+          # lcov --list coverage.info
+
+      - name: Upload coverage report
+        if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
+        uses: codecov/codecov-action@v5.5.2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: ${{ runner.workspace }}/build/coverage.xml
+          fail_ci_if_error: true # optional (default = false)

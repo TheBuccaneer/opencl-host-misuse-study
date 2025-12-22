@@ -17,16 +17,23 @@ Tooling:
 Interpretation: likely Oclgrind limitation / portability issue around sRGB image formats; project has no runtime fallback/check for supported image formats.
 Artifacts recommended: save patch as patches/cas2d-oclgrind-rgba.patch; keep harness and oclgrind logs.
 "
-ProkopHapala/SimpleSimulationEngine,master,32,5,hpc,C++,2025-11-15T20:20:54Z,False,1,Medium,98588,not_attempted,not_attempted,,,
+ProkopHapala/SimpleSimulationEngine,master,32,5,hpc,C++,2025-11-15T20:20:54Z,False,1,Medium,98588,success,success_with_patch,,"repo/ 
+SimpleSimulationEngine
+","CMake build (WITH_OPENCL=ON, WITH_SDL=ON); test_clNBody2D only runs with CWD=build_cpp/sketches_OCL/Nbody.
+
+notes_detail      = Minimal fix: <algorithm> include in Selection.h + __local shared array in cl/nbody.cl moved to kernel top level. Oclgrind --check-api runs without further API errors.
+
+"
 ,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,
-Gabrax/GABRIZER,main,0,0,other,C,2025-11-15T13:01:11Z,False,1,Low,500,not_attempted,not_attempted,,,
+Gabrax/GABRIZER,main,0,0,other,C,2025-11-15T13:01:11Z,False,1,Low,500,failed,not_attempted,third_party_dep_build_failure (assimp + clang -Wnontrivial-memcall),"repo/GABGFX
+","Build via official build.sh stops in vendored assimp (SceneCombiner.cpp, memcpy on non-trivially copyable aiFace/aiMeshMorphKey treated as -Werror by clang 20); fixing requires patching dependency, out-of-scope for study."
 ,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,
 EwanC/CLVizulayer,main,0,0,other,C++,2025-11-14T21:49:30Z,False,1,Low,4599,not_attempted,not_attempted,,,
 ,,,,,,,,,,,,,,,
-clEsperanto/CLIc,master,16,15,computer_vision,C++,2025-11-14T14:54:27Z,False,1,Medium,18064,not_attempted,not_attempted,,,
+clEsperanto/CLIc,master,16,15,computer_vision,C++,2025-11-14T14:54:27Z,False,1,Medium,18064,success,success ,,repo/CLIc,
 bsc-performance-tools/extrae,master,68,40,hpc,C,2025-11-14T14:02:14Z,False,1,Medium,208262,not_attempted,not_attempted,,,
 ,,,,,,,,,,,,,,,
 carlesfernandez/gnss-sdr,next,54,20,hpc,C++,2025-11-14T11:05:22Z,False,1,Medium,212758,not_attempted,not_attempted,,,

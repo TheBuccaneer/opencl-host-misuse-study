@@ -1,0 +1,51 @@
+# Folders
+.vscode
+build
+builds
+install
+.mypy_cache
+.ipynb_checkpoints
+
+# Specific files/folders
+cle_preamble.h
+clic.hpp
+cleKernelList.hpp
+clic/kernels
+
+#CMake
+CMakeUserPresets.json
+
+
+# System files
+.DS_Store
+
+# Prerequisites
+*.d
+
+# Compiled Object Files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic Libraries
+*.so
+*.dylib
+*.dll
+
+#Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+*.iml
+/.idea/
