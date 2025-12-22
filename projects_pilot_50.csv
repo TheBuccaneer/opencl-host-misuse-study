@@ -3,8 +3,20 @@ intel/compute-runtime,master,1292,256,other,C++,2025-11-17T10:12:19Z,False,1,Hig
 ,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,
 masteryi-0018/MiniNN,main,2,0,ml,C++,2025-11-16T13:16:13Z,False,1,Low,1799,success,skipped,no opencl impl,repo/MiniNN,"Build via ""python3 build_mininn.py"" in .venv (CMake + Ninja, clang/clang++). Build erfolgreich; gtest-main, demo und Python-Modul mininn_capi wurden erzeugt."
-glaretechnologies/glare-core,master,12,6,computer_vision,C,2025-11-16T12:26:02Z,False,1,Low,631603,not_attempted,not_attempted,,,
-kar-dim/CAS-2D,master,2,0,computer_vision,C++,2025-11-16T08:45:09Z,False,1,Low,11777,not_attempted,not_attempted,,,
+glaretechnologies/glare-core,master,12,6,computer_vision,C,2025-11-16T12:26:02Z,False,1,Low,631603,no success,not_attempted,,,
+kar-dim/CAS-2D,master,2,0,computer_vision,C++,2025-11-16T08:45:09Z,False,1,Low,11777,success,success_with_patch,,repo/CAS-2D,"2025-12-22 (Europe/Berlin): Linux build + tooling setup.
+Upstream project is VS-focused; added/used custom Linux CMake build (CMakeLists.txt not from upstream). Also excluded CUDA sources to avoid cudart linkage.
+Built: cmake -S . -B build && cmake --build build -j  => build/libCAS2D.so
+
+Created harness: cas_harness.c (calls CAS_initialize -> CAS_supplyImage(256x256 RGBA) -> CAS_sharpenImage(mode=0, 0.5, 0.5) -> CAS_destroy once). Native run OK.
+
+Tooling:
+- oclgrind 21.10 --check-api initially failed at clCreateImage with CL_INVALID_VALUE (image_format) when using cl::ImageFormat(CL_sRGBA, CL_UNORM_INT8) in CASImpl.cpp.
+- Applied tool-compat patch: CL_sRGBA -> CL_RGBA in CAS-2D-Lib/CASImpl.cpp; after patch oclgrind --check-api ./cas_harness runs through (no API errors reported).
+
+Interpretation: likely Oclgrind limitation / portability issue around sRGB image formats; project has no runtime fallback/check for supported image formats.
+Artifacts recommended: save patch as patches/cas2d-oclgrind-rgba.patch; keep harness and oclgrind logs.
+"
 ProkopHapala/SimpleSimulationEngine,master,32,5,hpc,C++,2025-11-15T20:20:54Z,False,1,Medium,98588,not_attempted,not_attempted,,,
 ,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,
