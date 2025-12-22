@@ -1,0 +1,5 @@
+--- a/CAS-2D-Lib/CASImpl.cpp
++++ b/CAS-2D-Lib/CASImpl.cpp
+@@ -28,7 +28,7 @@
+-    tex = cl::Image2D(context, CL_MEM_READ_ONLY, cl::ImageFormat(CL_sRGBA, CL_UNORM_INT8), cols, rows, 0, NULL);
++    tex = cl::Image2D(context, CL_MEM_READ_ONLY, cl::ImageFormat(CL_RGBA, CL_UNORM_INT8), cols, rows, 0, NULL);
