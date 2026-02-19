@@ -45,3 +45,4 @@ dist/
 .env.*
 docker/*.img
 *.tar
+repo/extrae/

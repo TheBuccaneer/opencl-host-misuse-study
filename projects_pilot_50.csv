@@ -33,8 +33,9 @@ Gabrax/GABRIZER,main,0,0,other,C,2025-11-15T13:01:11Z,False,1,Low,500,failed,not
 ,,,,,,,,,,,,,,,
 EwanC/CLVizulayer,main,0,0,other,C++,2025-11-14T21:49:30Z,False,1,Low,4599,not_attempted,not_attempted,,,
 ,,,,,,,,,,,,,,,
-clEsperanto/CLIc,master,16,15,computer_vision,C++,2025-11-14T14:54:27Z,False,1,Medium,18064,success,success ,,repo/CLIc,
-bsc-performance-tools/extrae,master,68,40,hpc,C,2025-11-14T14:02:14Z,False,1,Medium,208262,not_attempted,not_attempted,,,
+clEsperanto/CLIc,master,16,15,computer_vision,C++,2025-11-14T14:54:27Z,False,1,Medium,18064,success,success ,,repo/CLIc,"Linux build ok (CMake, OpenCL 3.0 ICD). Oclgrind --check-api auf CLIc-Tests zeigt systematischen clGetDeviceInfo-Misuse: CL_DEVICE_MAX_WORK_GROUP_SIZE wird an zwei Stellen mit sizeof(cl_uint) statt sizeof(size_t) abgefragt; Rückgabecodes werden ignoriert ? CL_INVALID_VALUE und Heap-Korruption unter Oclgrind, native Tests bleiben grün.
+"
+bsc-performance-tools/extrae,master,68,40,hpc,C,2025-11-14T14:02:14Z,False,1,Medium,208262,success,success,,repo/extrae,Ran oclgrind --check-api on Extrae OpenCL example (vadd) after switching DEVICE to DEFAULT; no OpenCL runtime errors detected.
 ,,,,,,,,,,,,,,,
 carlesfernandez/gnss-sdr,next,54,20,hpc,C++,2025-11-14T11:05:22Z,False,1,Medium,212758,not_attempted,not_attempted,,,
 gnss-sdr/gnss-sdr,main,1948,665,hpc,C++,2025-11-14T11:05:17Z,False,1,High,219705,not_attempted,not_attempted,,,
