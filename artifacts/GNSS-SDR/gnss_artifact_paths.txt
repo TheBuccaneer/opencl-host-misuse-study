@@ -1,0 +1,2 @@
+DIFF_FINAL=/tmp/gnss_fix_final.diff
+LOG_FINAL=/tmp/gnss_final_native_after_format.log

@@ -37,7 +37,7 @@ clEsperanto/CLIc,master,16,15,computer_vision,C++,2025-11-14T14:54:27Z,False,1,M
 "
 bsc-performance-tools/extrae,master,68,40,hpc,C,2025-11-14T14:02:14Z,False,1,Medium,208262,success,success,,repo/extrae,Ran oclgrind --check-api on Extrae OpenCL example (vadd) after switching DEVICE to DEFAULT; no OpenCL runtime errors detected.
 ,,,,,,,,,,,,,,,
-carlesfernandez/gnss-sdr,next,54,20,hpc,C++,2025-11-14T11:05:22Z,False,1,Medium,212758,not_attempted,not_attempted,,,
+carlesfernandez/gnss-sdr,next,54,20,hpc,C++,2025-11-14T11:05:22Z,False,1,Medium,212758,success,success,,,"> GNSS-SDR/OpenCL: Host-side fixes: (1) `pcps_opencl_acquisition_cc::acquisition_core_opencl()` used `d_well_count` inconsistently (incremented then reused) ? invalid `d_in_buffer[]` passed to VOLK, SIGSEGV in `libvolk` under gdb/oclgrind; fixed via snapshot `well=d_well_count` and consistent indexing. (2) `fft_kernelstring.cc` kernel_name allocation used sizeof(pointer) pattern with snprintf; replaced by `strdup(kernelName.c_str())`. Repro: build+install, run `gnss-sdr --config_file=/usr/local/share/gnss-sdr/conf/local/gps_ibyte_opencl_acq.conf`; optional crash evidence via `gdb --args oclgrind ...` + `bt full`. Config: `Observables.dump=false` to avoid `/archive` permission dependency."
 gnss-sdr/gnss-sdr,main,1948,665,hpc,C++,2025-11-14T11:05:17Z,False,1,High,219705,not_attempted,not_attempted,,,
 JustZhenya/SatDump-fork,master,0,0,other,C++,2025-11-13T23:35:15Z,False,1,Low,348918,not_attempted,not_attempted,,,
 mmarzolla/parallel-etudes,main,1,1,hpc,C,2025-11-13T21:43:14Z,False,1,Low,11714,not_attempted,not_attempted,,,

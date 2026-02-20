@@ -1,0 +1,68 @@
+diff --git a/src/algorithms/acquisition/gnuradio_blocks/pcps_opencl_acquisition_cc.cc b/src/algorithms/acquisition/gnuradio_blocks/pcps_opencl_acquisition_cc.cc
+index a140b6f50..27120153f 100644
+--- a/src/algorithms/acquisition/gnuradio_blocks/pcps_opencl_acquisition_cc.cc
++++ b/src/algorithms/acquisition/gnuradio_blocks/pcps_opencl_acquisition_cc.cc
+@@ -1,3 +1,5 @@
++
++
+ /*!
+  * \file pcps_opencl_acquisition_cc.cc
+  * \brief This class implements a Parallel Code Phase Search Acquisition
+@@ -255,7 +257,7 @@ int pcps_opencl_acquisition_cc::init_opencl_environment(const std::string &kerne
+             delete d_cl_buffer_magnitude;
+             delete d_cl_buffer_fft_codes;
+ 
+-            std::cout << "Error creating OpenCL FFT plan.\n";
++            std::cout << "Error creating OpenCL FFT plan. err=" << err << "\n";
+             return 4;
+         }
+ 
+@@ -430,13 +432,14 @@ void pcps_opencl_acquisition_cc::acquisition_core_opencl()
+     uint32_t indext = 0;
+     float magt = 0.0;
+     float fft_normalization_factor = (static_cast<float>(d_fft_size_pow2) * static_cast<float>(d_fft_size));  // This works, but I am not sure why.
++    const uint32_t well = d_well_count;
+     uint64_t samplestamp = d_sample_counter_buffer[d_well_count];
+ 
+     d_input_power = 0.0;
+     d_mag = 0.0;
+ 
+     // write input vector in buffer of OpenCL device
+-    d_cl_queue->enqueueWriteBuffer(*d_cl_buffer_in, CL_TRUE, 0, sizeof(gr_complex) * d_fft_size, d_in_buffer[d_well_count].data());
++    d_cl_queue->enqueueWriteBuffer(*d_cl_buffer_in, CL_TRUE, 0, sizeof(gr_complex) * d_fft_size, d_in_buffer[well].data());
+ 
+     d_well_count++;
+ 
+@@ -455,7 +458,7 @@ void pcps_opencl_acquisition_cc::acquisition_core_opencl()
+                << ", doppler_step: " << d_acq_params.doppler_step;
+ 
+     // 1- Compute the input signal power estimation
+-    volk_32fc_magnitude_squared_32f(d_magnitude.data(), d_in_buffer[d_well_count].data(), d_fft_size);
++    volk_32fc_magnitude_squared_32f(d_magnitude.data(), d_in_buffer[well].data(), d_fft_size);
+     volk_32f_accumulator_s32f(&d_input_power, d_magnitude.data(), d_fft_size);
+     d_input_power /= static_cast<float>(d_fft_size);
+ 
+diff --git a/src/algorithms/libs/opencl/fft_kernelstring.cc b/src/algorithms/libs/opencl/fft_kernelstring.cc
+index 87050c134..a33db2861 100644
+--- a/src/algorithms/libs/opencl/fft_kernelstring.cc
++++ b/src/algorithms/libs/opencl/fft_kernelstring.cc
+@@ -890,8 +890,7 @@ createLocalMemfftKernelString(cl_fft_plan *plan)
+     (*kInfo)->dir = cl_fft_kernel_x;
+     (*kInfo)->in_place_possible = 1;
+     (*kInfo)->next = nullptr;
+-    (*kInfo)->kernel_name = (char *)malloc(sizeof(char) * (kernelName.size() + 1));
+-    snprintf((*kInfo)->kernel_name, sizeof((*kInfo)->kernel_name), kernelName.c_str());
++    (*kInfo)->kernel_name = strdup(kernelName.c_str());
+ 
+     unsigned int numWorkItemsPerXForm = n / radixArray[0];
+     unsigned int numWorkItemsPerWG = numWorkItemsPerXForm <= 64 ? 64 : numWorkItemsPerXForm;
+@@ -1142,8 +1141,7 @@ createGlobalFFTKernelString(cl_fft_plan *plan, int n, int BS, cl_fft_kernel_dir
+                     (*kInfo)->in_place_possible = 0;
+                 }
+             (*kInfo)->next = nullptr;
+-            (*kInfo)->kernel_name = (char *)malloc(sizeof(char) * (kernelName.size() + 1));
+-            snprintf((*kInfo)->kernel_name, sizeof((*kInfo)->kernel_name), kernelName.c_str());
++            (*kInfo)->kernel_name = strdup(kernelName.c_str());
+ 
+             insertVariables(localString, R1);
+ 

@@ -1,0 +1,9 @@
+=== DATE ===
+2026-02-20T16:41:03+01:00
+=== GIT ===
+f93fee013dc658b5c926ff05fbe32bbb7aefe085
+=== CHECK: no snprintf(kInfo->kernel_name) ===
+OK
+=== CHECK: no sizeof(pointer) bug left ===
+OK
+=== DIFF (3 files) ===
